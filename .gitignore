@@ -1,0 +1,14 @@
+**/node_modules
+app.yaml
+.idea
+dev
+
+**/dist/*
+npm-debug.log
+
+**/remote_modules
+src/app/config/config.json
+src/public_*
+
+**/coverage/*
+src/app/config/config.json
