@@ -12,3 +12,6 @@ src/public_*
 
 **/coverage/*
 src/app/config/config.json
+
+**/env variables/*
+nodemon.json
