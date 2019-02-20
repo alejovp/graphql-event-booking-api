@@ -11,6 +11,32 @@ const { PORT, MONGO_USER, MONGO_PASSWORD, MONGO_DB } = process.env;
 
 const app = express();
 
+const fetchEvents = eventIds => {
+    return Event.find({ _id: { $in: eventIds } })
+        .then(events => {
+            return events.map(event => {
+                return {
+                    ...event._doc,
+                    _id: event.id,
+                    creator: fetchUser.bind(this, event._doc.creator)
+                }
+            })
+        })
+};
+
+const fetchUser = userId => {
+    return User.findById(userId)
+        .then(user => {
+            return {
+                ...user._doc,
+                _id: user.id,
+                createdEvents: fetchEvents.bind(this, user._doc.createdEvents)
+            }
+        })
+        .catch(err => {
+            throw err;
+        });
+};
 
 app.use(bodyParser.json());
 
@@ -21,13 +47,15 @@ app.use('/graphql-api', graphQlHttp({
             title: String!
             description: String!
             price: Float!
-            date: String!
+            date: String!,
+            creator: User!
         }
 
         type User {
             _id: ID!
             email: String!
-            password: String
+            password: String,
+            createdEvents: [Event!]
         }
 
         input EventInput {
@@ -65,7 +93,10 @@ app.use('/graphql-api', graphQlHttp({
                     return events.map(event => {
                         // return { ...event._doc, _id: event._doc._id.toString() }
                         // return { ...event._doc, _id: event.id }
-                        return { ...event._doc }
+                        return {
+                            ...event._doc,
+                            creator: fetchUser.bind(this, event._doc.creator)
+                        }
                     });
                 })
                 .catch(err => {
@@ -79,14 +110,17 @@ app.use('/graphql-api', graphQlHttp({
                 description,
                 price: +price,
                 date: new Date(date),
-                creator: '5c69d5657768117d64c9a454'   
+                creator: '5c69d5657768117d64c9a454'
             });
             let createdEvent;
 
             return event
                 .save()
                 .then(result => {
-                    createdEvent = { ...result._doc };
+                    createdEvent = {
+                        ...result._doc,
+                        creator: fetchUser.bind(this, result._doc.creator)
+                    };
                     return User.findById('5c69d5657768117d64c9a454');
                 })
                 .then(user => {
@@ -128,7 +162,7 @@ app.use('/graphql-api', graphQlHttp({
                     throw err;
                 })
 
-            
+
         }
     },
     graphiql: true
