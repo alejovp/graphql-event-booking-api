@@ -15,6 +15,17 @@ const transformEvent = event => {
     };
 }
 
+const transformBooking = booking => {
+    return {
+        ...booking._doc,
+        // _id: booking.id,
+        event: fetchOneEvent.bind(this, booking._doc.event),
+        user: fetchUser.bind(this, booking._doc.user),
+        createdAt: dateToString(booking._doc.createdAt),
+        updatedAt: dateToString(booking._doc.updatedAt),
+    };
+}
+
 const fetchEvents = async eventIds => {
     try {
         const events = await Event.find({ _id: { $in: eventIds } });
@@ -66,14 +77,7 @@ module.exports = {
         try {
             const bookings = await Booking.find();
             return bookings.map(booking => {
-                return {
-                    ...booking._doc,
-                    // _id: booking.id,
-                    event: fetchOneEvent.bind(this, booking._doc.event),
-                    user: fetchUser.bind(this, booking._doc.user),
-                    createdAt: dateToString(booking._doc.createdAt),
-                    updatedAt: dateToString(booking._doc.updatedAt),
-                }
+                return transformBooking(booking);
             });
             
         } catch (error) {
@@ -140,13 +144,7 @@ module.exports = {
         
         try {
             const result = await newBooking.save();
-            return {
-                ...result._doc,
-                createdAt: dateToString(result._doc.createdAt),
-                updatedAt: dateToString(result._doc.updatedAt),
-                event: fetchOneEvent.bind(this, result._doc.event),
-                user: fetchUser.bind(this, result._doc.user)
-            }
+            return transformBooking(result);
         } catch (error) {
             throw error;
         }   
