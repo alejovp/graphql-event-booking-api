@@ -1,14 +1,16 @@
 const bcrypt = require('bcryptjs');
+
 const Event = require('../../models/event');
 const User = require('../../models/user');
 const Booking = require('../../models/booking');
+const { dateToString } = require('../../helpers/date');
 
 
 const transformEvent = event => {
     return {
         ...event._doc,
         _id: event.id,
-        date: new Date(event._doc.date).toISOString(),
+        date: dateToString(event._doc.date),
         creator: fetchUser.bind(this, event._doc.creator)
     };
 }
@@ -69,8 +71,8 @@ module.exports = {
                     // _id: booking.id,
                     event: fetchOneEvent.bind(this, booking._doc.event),
                     user: fetchUser.bind(this, booking._doc.user),
-                    createdAt: new Date(booking._doc.createdAt).toISOString(),
-                    updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+                    createdAt: dateToString(booking._doc.createdAt),
+                    updatedAt: dateToString(booking._doc.updatedAt),
                 }
             });
             
@@ -140,8 +142,8 @@ module.exports = {
             const result = await newBooking.save();
             return {
                 ...result._doc,
-                createdAt: new Date(result._doc.createdAt).toISOString(),
-                updatedAt: new Date(result._doc.updatedAt).toISOString(),
+                createdAt: dateToString(result._doc.createdAt),
+                updatedAt: dateToString(result._doc.updatedAt),
                 event: fetchOneEvent.bind(this, result._doc.event),
                 user: fetchUser.bind(this, result._doc.user)
             }
