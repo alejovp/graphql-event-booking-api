@@ -1,7 +1,9 @@
-**/node_modules
+node_modules
 app.yaml
 .idea
 dev
+.vscode
+.DS_Store
 
 **/dist/*
 npm-debug.log
