@@ -5,7 +5,10 @@ const { transformBooking, transformEvent } = require('./populators');
 
 module.exports = {
     // resolvers list
-    bookings: async () => {
+    bookings: async (args, req) => {
+        if (!req.isAuth) {
+            throw new Error('Unauthenticated request!');
+        }
         try {
             const bookings = await Booking.find();
             return bookings.map(booking => {
@@ -16,12 +19,16 @@ module.exports = {
             throw error;
         }
     },
-    bookEvent: async args => {
+    bookEvent: async (args, req) => {
+        if (!req.isAuth) {
+            throw new Error('Unauthenticated request!');
+        }
+
         const { eventId } = args;
         const fetchedEvent = await Event.findOne({ _id: eventId});
         const newBooking = new Booking({
             event: fetchedEvent,
-            user: '5c7132666e9eac3f5797de04'
+            user: req.userId
         })
         
         try {
@@ -31,7 +38,11 @@ module.exports = {
             throw error;
         }   
     },
-    cancelBooking: async args => {
+    cancelBooking: async (args, req) => {
+        if (!req.isAuth) {
+            throw new Error('Unauthenticated request!');
+        }
+
         const { bookingId } = args;
 
         try {
