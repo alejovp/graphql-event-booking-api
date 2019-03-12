@@ -8,8 +8,8 @@ const { JWT_KEY } = process.env;
 module.exports = {
     // resolvers list
     createUser: async args => {
-        const { email, password } = args.userInput;
-
+        const { firstName, lastName, email, password } = args.userInput;
+        
         try {
             const existingUser = await User.findOne({ email });
             if (existingUser) {
@@ -18,6 +18,8 @@ module.exports = {
 
             const hashedPassword = await bcrypt.hash(password, 12);
             const user = new User({
+                firstName,
+                lastName,
                 email,
                 password: hashedPassword
             });
